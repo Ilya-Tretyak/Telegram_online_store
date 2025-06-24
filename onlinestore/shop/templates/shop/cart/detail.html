@@ -1,0 +1,58 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Ваша корзина</h2>
+
+    {% if cart.items.all %}
+    <div class="table-responsive">
+        <table class="table">
+            <!-- Существующая таблица с товарами -->
+            <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th>Количество</th>
+                    <th>Цена</th>
+                    <th>Сумма</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.product.price }} руб.</td>
+                    <td>{{ item.total_price }} руб.</td>
+                    <td>
+                        <a href="{% url 'remove_from_cart' item.id %}"
+                           class="btn btn-sm btn-outline-danger">
+                            Удалить
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="table-primary">
+                    <td colspan="3"><strong>Итого:</strong></td>
+                    <td colspan="2"><strong>{{ cart.total_price }} руб.</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- Новая кнопка оформления заказа -->
+        <div class="d-flex justify-content-end mt-4">
+            <a href="{% url 'checkout' %}"
+               class="btn btn-lg btn-success">
+                <i class="bi bi-bag-check"></i> Оформить заказ
+            </a>
+        </div>
+
+    {% else %}
+        <div class="alert alert-info">
+            Ваша корзина пуста.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
