@@ -6,7 +6,7 @@
 <p>Дата: {{ order.created_at|date:"d.m.Y H:i" }}</p>
 
 <h3>Состав заказа:</h3>
-<table class="table">
+<table>
     {% for item in order.items.all %}
     <tr>
         <td>{{ item.product.name }}</td>
@@ -14,7 +14,7 @@
         <td>{{ item.total_price }} руб.</td>
     </tr>
     {% endfor %}
-    <tr class="table-primary">
+    <tr>
         <td colspan="2"><strong>Итого:</strong></td>
         <td><strong>{{ order.total }} руб.</strong></td>
     </tr>

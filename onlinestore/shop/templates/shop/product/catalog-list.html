@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+
+    <title>Document</title>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <div class="header-left">
+                <button class="menu-btn">
+                    <img src="../../../../static/img-icon/menu-button.svg" alt="Меню">
+                </button>
+            </div>
+
+            <div class="header-center">
+                <div class="brand">
+                    <img src="../../../../static/img-icon/logo.svg" alt="logo">
+                </div>
+            </div>
+
+        <!-- Правая часть: иконки -->
+            <div class="header-right">
+                <button class="icon-btn">
+                    <img src="../../../../static/img-icon/favorite-icon.svg" alt="favorite">
+                </button>
+                <button class="icon-btn">
+                    <img src="../../../../static/img-icon/bag-icon.svg" alt="bag">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <div class="container products-container">
+            {% for product in products %}
+            <div class="product-card">
+                <div class="img-card">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                </div>
+                <div class="info-card">
+                    <p class="product-title">{{ product.name }}</p>
+
+                    <div class="sizes">
+                        <p class="label">Размеры:</p>
+                        <div class="size-boxes">
+                            <div class="size-box">M/L</div>
+                            <div class="size-box">S/M</div>
+                        </div>
+                    </div>
+
+                    <div class="product-quantity">
+                        <p class="label">Количество:</p>
+                        <div class="quantity-boxes">
+                            <button class="quantity-btn">-</button>
+                            <span class="quantity-count">1</span>
+                            <button class="quantity-btn">+</button>
+                        </div>
+                    </div>
+
+                    <p class="product-price">Цена: {{ product.price }}₽</p>
+
+                    <button class="buy-button">Добавить в корзину</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <footer>
+
+    </footer>
+</body>
+</html>
