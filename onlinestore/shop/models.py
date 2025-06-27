@@ -19,7 +19,14 @@ class Category(models.Model):
 
 '''Модель для товаров'''
 class Product(models.Model):
+    GENDER_CHOICES = (
+        ('male', 'МУЖСКОЕ'),
+        ('female', 'ЖЕНСКОЕ'),
+        ('kid', 'ДЕТСКОЕ'),
+    )
+
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='female')
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
     description = models.TextField()
@@ -44,6 +51,13 @@ class Product(models.Model):
         super().delete(*args, **kwargs)
 
 
+class Size(models.Model):
+    product = models.ForeignKey(Product, related_name='sizes', on_delete=models.CASCADE)
+    value = models.CharField(max_length=20)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return f'{self.value}'
 
 '''Модель для корзин пользователей'''
 class Cart(models.Model):

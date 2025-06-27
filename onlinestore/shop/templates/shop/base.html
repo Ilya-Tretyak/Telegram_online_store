@@ -1,35 +1,72 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!doctype html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>
-        {% block title %}Мой интернет-магазин{% endblock %}
-    </title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 
     {% load static %}
     <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+
+    <title>Suborbia</title>
 </head>
 
 <body>
-    <header>
-        <div>
-            <h1>Онлайн-магазин</h1>
-            <ul>
-                <li>
-                    <a href="/">Главная</a>
-                </li>
-                <li>
-                    <a href="/admin/">Админка</a>
-                </li>
-                <li>
-                    <a href="{% url 'cart_detail' %}" >Корзина</a>
-                </li>
-                <li>
-                    <a href="{% url 'order_list' %}" >Мои заказы</a>
-                </li>
-            </ul>
+    <header class="site-header">
+        <div class="container">
+            <div class="header-left">
+                <button id="menu-toggle" class="menu-btn">
+                    <img src="{% static 'img-icon/menu-button.svg' %}" alt="menu-button">
+                </button>
+            </div>
+
+            <aside id="sidebar" class="sidebar">
+                <div class="img-box">
+                    <img src="{% static 'img-icon/logo.svg' %}" alt="">
+                </div>
+
+                <nav class="gender">
+                    {% for product in products %}
+
+                    {% endfor %}
+
+                    <a href="{% url 'product_list_by_gender' 'female' %}">ЖЕНСКОЕ</a>
+                    <p>|</p>
+                    <a href="{% url 'product_list_by_gender' 'male' %}">МУЖСКОЕ</a>
+                    <p>|</p>
+                    <a href="{% url 'product_list_by_gender' 'unisex' %}">ДЕТСКОЕ</a>
+                </nav>
+
+                <nav class="sidebar-nav">
+                    {% for category in categories %}
+                        <a href="{% url 'product_list_by_category' category.slug %}">
+                            {{ category.name }}
+                        </a>
+                    {% endfor %}
+                    
+                </nav>
+            </aside>
+
+            <!-- Затемнение -->
+            <div id="overlay" class="overlay"></div>
+
+            <div class="header-center">
+                <div class="brand">
+                    <a href="{% url 'product_list' %}">
+                        <img src="{% static 'img-icon/logo.svg' %}" alt="logo">
+                    </a>
+                </div>
+            </div>
+
+        <!-- Правая часть: иконки -->
+            <div class="header-right">
+                <button class="icon-btn">
+                    <img src="{% static 'img-icon/favorite-icon.svg' %}" alt="favorite">
+                </button>
+                <button class="icon-btn">
+                    <img src="{% static 'img-icon/bag-icon.svg' %}" alt="bag">
+                </button>
+            </div>
         </div>
     </header>
 
@@ -38,10 +75,23 @@
     {% endblock %}
 
     <footer>
-        <div>
-            <p>&copy; 2023 Мой магазин. Все права защищены.</p>
-        </div>
+
     </footer>
 
+    <script>
+        const toggleBtn = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+    </script>
 </body>
 </html>

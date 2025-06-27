@@ -16,7 +16,7 @@ from .forms import OrderForm
 
 
 '''Получение всех товаров'''
-def product_list(request, category_slug=None):
+def product_list(request, category_slug=None, gender=None):
     category = None
     categories = Category.objects.all()
     products = Product.objects.filter(available=True)
@@ -25,10 +25,18 @@ def product_list(request, category_slug=None):
         category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(category=category)
 
+    if gender:
+        products = products.filter(gender=gender)
+
     return render(
         request,
         'shop/product/catalog-list.html',
-        {'category': category, 'categories': categories, 'products': products}
+        {
+            'category': category,
+            'categories': categories,
+            'products': products,
+            'gender': gender,
+        }
     )
 
 '''Получение информации об определенном товаре'''
