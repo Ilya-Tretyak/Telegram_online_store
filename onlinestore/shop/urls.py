@@ -13,8 +13,8 @@ urlpatterns = [
     path('cart/remove/<int:cart_item_id>/', views.remove_from_cart, name='remove_from_cart'),
 # urls для product
     path('', views.product_list, name='product_list'),
+    path('product/<int:id>/<slug:slug>/', views.product_detail, name='product_detail'),
     path('gender/<str:gender>/', views.product_list, name='product_list_by_gender'),
     path('<slug:category_slug>/', views.product_list, name='product_list_by_category'),
-    path('<slug:category_slug>/<str:gender>/', views.product_list, name='product_list_by_category_gender'),
-    path('<int:id>/<slug:slug>/', views.product_detail, name='product_detail'),
+    path('<slug:category_slug>/gender/<str:gender>/', views.product_list, name='product_list_by_category_gender'),
 ]
