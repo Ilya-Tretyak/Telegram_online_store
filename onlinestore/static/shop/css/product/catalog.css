@@ -1,0 +1,110 @@
+.products-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 30px;
+    margin: 40px auto;
+    padding: 0 30px;
+    max-width: 1200px;
+}
+
+.product-card {
+    background-color: #FCFCFC;
+    border-radius: 19px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.img-card {
+    position: relative;
+}
+
+.img-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-top-left-radius: 19px;
+    border-top-right-radius: 19px;
+}
+
+.favorite-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: white;
+    border: none;
+    cursor: pointer;
+}
+
+.heart-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
+.info-card {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.product-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+}
+
+.sizes {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.sizes .label {
+    font-size: 13px;
+    color: #8D8D8D;
+    margin: 0;
+}
+
+.size-boxes {
+    display: flex;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.size-box {
+    padding: 6px 10px;
+    border: 2px solid #000;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+
+/* Цена */
+.product-price {
+    font-size: 14px;
+    color: #8D8D8D;
+    text-align: center;
+    margin: 0;
+}
+
+/* Кнопка покупки */
+.buy-button {
+    background-color: #000;
+    color: #fff;
+    padding: 12px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: auto;
+}

@@ -1,0 +1,173 @@
+/* Стили для details */
+.detail-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1600px;
+    margin: 40px auto;
+    padding: 0 30px;
+    align-items: center;
+}
+
+.img-detail {
+    border-radius: 19px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.img-detail img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.info-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.name-detail {
+    font-size: 50px;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.price-detail {
+    font-size: 28px;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+}
+
+.sizes-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sizes-detail .label {
+    font-size: 16px;
+    color: #8D8D8D;
+    margin: 0;
+}
+
+.size-boxes {
+    display: flex;
+    gap: 12px;
+}
+
+.size-box {
+    padding: 10px 20px;
+    border: 2px solid #000;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.size-box:hover {
+    background-color: #000;
+    color: #fff;
+}
+
+/* Количество */
+.product-quantity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.product-quantity .label {
+    font-size: 13px;
+    color: #8D8D8D;
+    margin: 0;
+}
+
+.quantity-boxes {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quantity-btn {
+    color: #000;
+    width: 50px;
+    height: 25px;
+    font-weight: bold;
+    border: 2px solid #000;
+    background: none;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 6px;
+}
+
+.quantity-count {
+    font-size: 17px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.buy-button-detail {
+    background-color: #000;
+    color: #fff;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: auto;
+    margin-left: 50px;
+    width: 300px;
+    max-width: 100%;
+}
+
+
+.favorite-button-detail {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* Для мобильной адаптивности */
+@media (max-width: 768px) {
+    .detail-container {
+        grid-template-columns: 1fr;
+        padding: 0 15px;
+        gap: 20px;
+    }
+
+    .img-detail img {
+        width: 100%;
+        height: auto;
+    }
+
+    .name-detail {
+        font-size: 20px;
+        font-family: 'FM Bolyar Sans Pro', sans-serif;
+    }
+
+    .price-detail {
+        font-size: 24px;
+    }
+
+    .info-detail {
+        gap: 20px;
+    }
+
+    .buy-button-detail {
+        margin-left: 20px;
+        width: 100%;
+    }
+
+    .favorite-button-detail {
+        margin-left: 30px;
+    }
+}

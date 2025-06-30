@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'FM Bolyar Sans Pro';
+    src: local('FM Bolyar Sans Pro 300'), local('FM-Bolyar-Sans-Pro-300'),
+        url('FMBolyarSansPro-300.woff2') format('woff2'),
+        url('FMBolyarSansPro-300.woff') format('woff'),
+        url('FMBolyarSansPro-300.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
