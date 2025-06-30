@@ -1,4 +1,5 @@
 {% extends "shop/base.html" %}
+{% load static %}
 
 {% block title %}
 {{ product.name }}
@@ -11,12 +12,15 @@
         </div>
         <div class="info-detail">
             <h2 class="name-detail">{{ product.name }}</h2>
+
             <p class="product-description">
                 {{ product.description }}
             </p>
+
             <p class="price-detail">
                 {{ product.price }} ₽
             </p>
+
             <div class="sizes-detail">
                 <p class="label">Размеры:</p>
                 <div class="size-boxes">
@@ -25,13 +29,23 @@
                     {% endfor %}
                 </div>
             </div>
+
             <div class="product-quantity-detail">
                 <p class="label">Количество:</p>
                 <div class="quantity-boxes">
                     <button class="quantity-btn">-</button>
                     <span class="quantity-count">1</span>
                     <button class="quantity-btn">+</button>
-                    <button class="buy-button-detail">Добавить в корзину</button>
+                    <form method="post" action="{% url 'add_to_cart' product.id %}">
+                        {% csrf_token %}
+                        <button class="buy-button-detail">Добавить в корзину</button>
+                    </form>
+                    <form method="post" action="{% url 'add_to_favorites' product.id %}">
+                        {% csrf_token %}
+                        <button class="favorite-button-detail"  type="submit">
+                            <img src="{% static 'img-icon/favorite-icon.svg' %}" alt="Добавить в избранное" width="24" height="24">
+                        </button>
+                    </form>
                 </div>
             </div>
 

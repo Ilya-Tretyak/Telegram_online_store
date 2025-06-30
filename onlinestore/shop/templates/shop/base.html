@@ -21,6 +21,8 @@
             </div>
 
             <aside id="sidebar" class="sidebar">
+                <button id="sidebar-close" class="sidebar-close-btn" aria-label="Закрыть меню">×</button>
+
                 <div class="img-box">
                     <img src="{% static 'img-icon/logo.svg' %}" alt="">
                 </div>
@@ -61,10 +63,14 @@
         <!-- Правая часть: иконки -->
             <div class="header-right">
                 <button class="icon-btn">
-                    <img src="{% static 'img-icon/favorite-icon.svg' %}" alt="favorite">
+                    <a href="{% url 'favorites' %}">
+                        <img src="{% static 'img-icon/favorite-icon.svg' %}" alt="favorite">
+                    </a>
                 </button>
                 <button class="icon-btn">
-                    <img src="{% static 'img-icon/bag-icon.svg' %}" alt="bag">
+                    <a href="{% url 'cart_detail' %}">
+                        <img src="{% static 'img-icon/bag-icon.svg' %}" alt="bag">
+                    </a>
                 </button>
             </div>
         </div>
@@ -82,6 +88,7 @@
         const toggleBtn = document.getElementById('menu-toggle');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
+        const sidebarCloseBtn = document.getElementById('sidebar-close');
 
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('active');
@@ -89,6 +96,11 @@
         });
 
         overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        sidebarCloseBtn.addEventListener('click', () => {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
         });

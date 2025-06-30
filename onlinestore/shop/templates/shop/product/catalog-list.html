@@ -1,39 +1,28 @@
 {% extends 'shop/base.html' %}
+{% load static %}
 
 {% block content %}
 	<main class="site-main">
         <div class="container products-container">
             {% for product in products %}
             <div class="product-card">
+
                 <div class="img-card">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    <a href="{% url 'product_detail' product.id product.slug %}">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    </a>
+                    <button class="favorite-btn">
+                        <img src="{% static 'img-icon/favorite-icon.svg' %}" alt="В избранное" class="heart-icon">
+                    </button>
                 </div>
+
                 <div class="info-card">
                     <a class="product-title" href="{% url 'product_detail' product.id product.slug %}">
                         <b>{{ product.name }}</b>
                     </a>
-                    <div class="sizes">
-                        <p class="label">Размеры:</p>
-                        <div class="size-boxes">
-                            {% for size in product.sizes.all %}
-                            	<div class="size-box">{{ size }}</div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="product-quantity">
-                        <p class="label">Количество:</p>
-                        <div class="quantity-boxes">
-                            <button class="quantity-btn">-</button>
-                            <span class="quantity-count">1</span>
-                            <button class="quantity-btn">+</button>
-                        </div>
-                    </div>
-
                     <p class="product-price">Цена: {{ product.price }} ₽</p>
-
-                    <button class="buy-button">Добавить в корзину</button>
                 </div>
+
             </div>
             {% endfor %}
         </div>
