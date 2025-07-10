@@ -1,12 +1,3 @@
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: 'Arial', sans-serif;
-}
-
 /* Стили для header */
 .site-header {
     position: sticky;
@@ -68,7 +59,7 @@ body {
 }
 .brand img {
     width: 146px;
-    height: 37px;
+    height: auto;
 }
 
 

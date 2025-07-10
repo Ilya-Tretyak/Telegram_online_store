@@ -2,34 +2,44 @@
 {% load static %}
 
 {% block stylesheet %}
-	<link rel="stylesheet" href="{% static 'shop/css/main.css' %}">
 	<link rel="stylesheet" href="{% static 'shop/css/cart/detail.css' %}">
 {% endblock %}
 
 {% block content %}
     <main class="site main" style="padding-bottom: 120px;">
         <div class="container cart-item-container">
+
             {% for item in items %}
             <div class="cart-item">
+
                 <div class="cart-item-img">
                     <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
                 </div>
+
                 <div class="cart-item-main">
+
                     <div class="top-row">
-                        <p class="name">{{ item.product.name }}</p>
+                        <a href="{% url 'product_detail' item.product.id item.product.slug %}">
+                            <p class="name">{{ item.product.name }}</p>
+                        </a>
                         <span class="multiply">x</span>
                         <p class="quantity">{{ item.quantity }}</p>
                     </div>
+
                     <div class="bottom-row">
                         <p class="price">{{ item.total_price }} ₽</p>
                     </div>
+
                 </div>
+
                 <div class="cart-item-options">
                     <img src="{% static 'img-icon/vertical-dots.svg' %}" alt="options" class="dots-btn">
                 </div>
+
             </div>
             {% endfor %}
         </div>
+
         <div class="cart-summary-fixed">
             <div class="summary-left">
                 <p>Итого:</p>

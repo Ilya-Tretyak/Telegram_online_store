@@ -1,6 +1,5 @@
-from itertools import product
-
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models.query import Prefetch
 from django.http import JsonResponse
 from django.shortcuts import (
     render,
@@ -9,12 +8,14 @@ from django.shortcuts import (
 )
 from django.contrib.auth.decorators import login_required
 from django.views import View
-from django.views.generic import ListView, DetailView, DeleteView, TemplateView
+from django.views.generic import ListView, DetailView, DeleteView
 from rest_framework.reverse import reverse_lazy
 
 from .models import (
     Category,
     Product,
+    Size,
+    ProductSize,
     Favorite,
     FavoriteItem,
     Cart,
@@ -29,9 +30,10 @@ class ProductListView(ListView):
     template_name = 'shop/product/catalog-list.html'
     model = Product
     context_object_name = 'products'
+    paginate_by = 10
 
     def get_queryset(self):
-        queryset = Product.objects.filter(available=True)
+        queryset = Product.objects.filter(available=True).select_related('category')
         category_slug = self.kwargs.get('category_slug')
         gender = self.kwargs.get('gender')
 
@@ -42,7 +44,19 @@ class ProductListView(ListView):
         if gender:
             queryset = queryset.filter(gender=gender)
 
-        return queryset
+        return queryset.prefetch_related(
+            Prefetch('product_sizes', queryset=ProductSize.objects.filter(quantity__gt=0))
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+
+        user_favorites = []
+        if self.request.user.is_authenticated:
+            user_favorites = FavoriteItem.objects.filter(favorite__user=self.request.user).values_list('product_id', flat=True)
+        context['user_favorites'] = user_favorites
+        return context
 
 
 class ProductDetailView(DetailView):
@@ -53,7 +67,24 @@ class ProductDetailView(DetailView):
     pk_url_kwarg = 'id'
 
     def get_queryset(self):
-        return Product.objects.filter(available=True)
+        return Product.objects.filter(available=True).prefetch_related(
+            Prefetch('product_sizes',
+                    queryset=ProductSize.objects.select_related('size').filter(quantity__gt=0))
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = self.object
+        context['available_sizes'] = product.product_sizes.all()
+        context['in_favorites'] = False
+
+        if self.request.user.is_authenticated:
+            context['in_favorites'] = FavoriteItem.objects.filter(
+                favorite__user=self.request.user,
+                product=product
+            ).exists()
+
+        return context
 
 class FavoriteListView(LoginRequiredMixin, ListView):
     model = FavoriteItem
@@ -61,22 +92,32 @@ class FavoriteListView(LoginRequiredMixin, ListView):
     context_object_name = 'items'
 
     def get_queryset(self):
-        favorite, _ = Favorite.objects.get_or_create(user=self.request.user)
-        return FavoriteItem.objects.filter(favorite=favorite).select_related('product')
+        return FavoriteItem.objects.filter(
+            favorite__user=self.request.user
+        ).select_related('product').prefetch_related('product__product_sizes')
 
 class AddToFavoriteView(LoginRequiredMixin, View):
     def post(self, request, product_id):
         product = get_object_or_404(Product, id=product_id)
         favorite, _ = Favorite.objects.get_or_create(user=request.user)
-        FavoriteItem.objects.get_or_create(favorite=favorite, product=product)
-        return redirect('product_detail', id=product_id, slug=product.slug)
+        favorite_item, created = FavoriteItem.objects.get_or_create(
+            favorite=favorite,
+            product=product
+        )
 
+        return JsonResponse({
+            'is_favorite': True,
+            'product_id': product.id
+        })
 
 class RemoveFromFavoriteView(LoginRequiredMixin, View):
     def post(self, request, product_id):
         favorite = get_object_or_404(Favorite, user=request.user)
         FavoriteItem.objects.filter(favorite=favorite, product=product_id).delete()
-        return redirect('favorites')
+        return JsonResponse({
+            'is_favorite': False,
+            'product_id': product_id
+        })
 
 
 class AddToCartView(LoginRequiredMixin, View):
@@ -84,12 +125,32 @@ class AddToCartView(LoginRequiredMixin, View):
         product = get_object_or_404(Product, id=product_id)
         cart, _ = Cart.objects.get_or_create(user=request.user)
 
-        # Получаем количество из POST, по умолчанию 1
+        # Получаем количество из POST
+        size_id = request.POST.get('size')
         quantity = int(request.POST.get('quantity', 1))
+
+        if size_id:
+            try:
+                size = Size.objects.get(id=int(size_id))
+                product_size = ProductSize.objects.get(
+                    product=product,
+                    size=size,
+                    quantity__gte=quantity
+                )
+            except (Size.DoesNotExist, ProductSize.DoesNotExist):
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Выбранный размер недоступен'
+                    }, status=400)
+                return redirect(product.get_absolute_url())
+        else:
+            size = None
 
         cart_item, created = CartItem.objects.get_or_create(
             cart=cart,
             product=product,
+            size=size,
             defaults={'quantity': quantity}
         )
 
@@ -101,7 +162,7 @@ class AddToCartView(LoginRequiredMixin, View):
             return JsonResponse(
                 {'success': True, 'message': 'Товар добавлен в корзину', 'quantity': cart_item.quantity})
 
-        return redirect('product_list')
+        return redirect('cart_detail')
 
 
 class RemoveFromCartView(LoginRequiredMixin, DeleteView):
@@ -121,7 +182,6 @@ def cart_detail(request):
     total_price = cart.total_price
     print(total_price)
     return render(request, 'shop/cart/detail.html', {'cart': cart, 'total_price': total_price})
-
 
 class CartListViews(LoginRequiredMixin, ListView):
     model = CartItem
@@ -156,6 +216,7 @@ def checkout(request):
                 OrderItem.objects.create(
                     order=order,
                     product=cart_item.product,
+                    size = cart_item.size,
                     quantity=cart_item.quantity,
                     price=cart_item.product.price
                 )

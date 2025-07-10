@@ -2,58 +2,131 @@
 {% load static %}
 
 {% block stylesheet %}
-	<link rel="stylesheet" href="{% static 'shop/css/main.css' %}">
-	<link rel="stylesheet" href="{% static 'shop/css/product/detail.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/css/product/detail.css' %}">
 {% endblock %}
 
-{% block title %}
-{{ product.name }}
-{% endblock %}
+{% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
-    <div class="detail-container">
-        <div class="img-detail">
-            <img src="{{ product.image.url }}" alt="image-product">
-        </div>
-        <div class="info-detail">
-            <h2 class="name-detail">{{ product.name }}</h2>
+<div class="detail-container">
+    <div class="img-detail">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+    </div>
 
-            <p class="product-description">
-                {{ product.description }}
-            </p>
+    <div class="info-detail">
+        <h2 class="name-detail">{{ product.name }}</h2>
 
-            <p class="price-detail">
-                {{ product.price }} ₽
-            </p>
+        <p class="product-description">{{ product.description }}</p>
 
+        <p class="price-detail">{{ product.price }} ₽</p>
+
+        <form class="size-quantity-container" method="post" action="{% url 'add_to_cart' product.id %}" id="add-to-cart-form">
+            {% csrf_token %}
+
+            {% if product.product_sizes.all %}
             <div class="sizes-detail">
                 <p class="label">Размеры:</p>
                 <div class="size-boxes">
-                    {% for size in product.sizes.all %}
-                        <div class="size-box">{{ size }}</div>
+                    {% for product_size in product.product_sizes.all %}
+                    <label>
+                        <input type="radio"
+                               class="size-option"
+                               name="size"
+                               value="{{ product_size.size.id }}"
+                               {% if forloop.first %}checked{% endif %}
+                               {% if product_size.quantity == 0 %}disabled{% endif %}>
+                        <span class="size-box {% if product_size.quantity == 0 %}size-out-of-stock{% endif %}">
+                            {{ product_size.size.name }}
+                        </span>
+                    </label>
                     {% endfor %}
                 </div>
             </div>
+            {% endif %}
 
             <div class="product-quantity-detail">
                 <p class="label">Количество:</p>
-                <div class="quantity-boxes">
-                    <button class="quantity-btn">-</button>
-                    <span class="quantity-count">1</span>
-                    <button class="quantity-btn">+</button>
-                    <form method="post" action="{% url 'add_to_cart' product.id %}">
-                        {% csrf_token %}
-                        <button class="buy-button-detail">Добавить в корзину</button>
-                    </form>
+                <div class="quantity-controls">
+                    <button type="button" class="quantity-btn minus">-</button>
+                    <input type="number" class="quantity-count" value="1" min="1" max="10" readonly>
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="button" class="quantity-btn plus">+</button>
+                </div>
+
+                <div class="action-buttons-row">
+                    <button class="buy-button-detail" type="submit">Добавить в корзину</button>
+
+                    <!-- Кнопка "В избранное" остаётся вне формы -->
                     <form method="post" action="{% url 'add_to_favorites' product.id %}">
                         {% csrf_token %}
-                        <button class="favorite-button-detail"  type="submit">
-                            <img src="{% static 'img-icon/favorite-icon.svg' %}" alt="Добавить в избранное" width="24" height="24">
+                        <button class="favorite-button-detail" type="submit">
+                            <img src="{% if in_favorites %}
+                                {% static 'img-icon/favorite-icon-filled.svg' %}
+                                {% else %}
+                                {% static 'img-icon/favorite-icon.svg' %}
+                                {% endif %}"
+                                alt="Избранное" width="24" height="24">
                         </button>
                     </form>
                 </div>
             </div>
-
-        </div>
+        </form>
     </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const minusBtn = document.querySelector('.quantity-btn.minus');
+    const plusBtn = document.querySelector('.quantity-btn.plus');
+    const quantityInput = document.querySelector('.quantity-count');
+    const hiddenQuantity = document.querySelector('input[name="quantity"]');
+
+    minusBtn.addEventListener('click', function() {
+        let value = parseInt(quantityInput.value);
+        if (value > 1) {
+            quantityInput.value = value - 1;
+            hiddenQuantity.value = value - 1;
+        }
+    });
+
+    plusBtn.addEventListener('click', function() {
+        let value = parseInt(quantityInput.value);
+        if (value < 10) {
+            quantityInput.value = value + 1;
+            hiddenQuantity.value = value + 1;
+        }
+    });
+
+    const addToCartForm = document.getElementById('add-to-cart-form');
+    if (addToCartForm) {
+        addToCartForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const cartCount = document.querySelector('.cart-count');
+                    if (cartCount) cartCount.textContent = data.cart_total;
+                    alert('Товар добавлен в корзину');
+                } else {
+                    alert(data.message || 'Ошибка при добавлении в корзину');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка');
+            });
+        });
+    }
+});
+</script>
 {% endblock %}
+

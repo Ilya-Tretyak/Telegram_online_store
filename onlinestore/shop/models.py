@@ -11,8 +11,12 @@ User = get_user_model()
 
 class Category(models.Model):
     """Модель для категорий"""
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=100, verbose_name='Название')
+    slug = models.SlugField(unique=True, verbose_name='URL')
+
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     def __str__(self):
         return self.name
@@ -26,17 +30,38 @@ class Product(models.Model):
         ('kid', 'ДЕТСКОЕ'),
     )
 
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='female')
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True)
-    description = models.TextField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField(upload_to='products/')
-    stock = models.PositiveIntegerField()
-    available = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        related_name='products',
+        verbose_name='Категория'
+    )
+    gender = models.CharField(
+        max_length=10,
+        choices=GENDER_CHOICES,
+        default='female',
+        verbose_name='Пол'
+    )
+    name = models.CharField(max_length=100, verbose_name='Название')
+    slug = models.SlugField(unique=True, verbose_name='URL')
+    description = models.TextField(verbose_name='Описание')
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name='Цена'
+    )
+    image = models.ImageField(
+        upload_to='products/',
+        verbose_name="Изображение"
+    )
+    available = models.BooleanField(default=True, verbose_name='Доступен')
+    created = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    updated = models.DateTimeField(auto_now=True, verbose_name='Обнавлен')
+
+    class Meta:
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
+        ordering = ['-created']
 
     def __str__(self):
         return self.name
@@ -55,13 +80,43 @@ class Product(models.Model):
 
 class Size(models.Model):
     """Модель для размеров"""
-    product = models.ForeignKey(Product, related_name='sizes', on_delete=models.CASCADE)
-    value = models.CharField(max_length=20)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=20, verbose_name='Название размера', default='temp_size')
+    code = models.SlugField(unique=True, verbose_name='Код размера', default='temp_code')
+
+    class Meta:
+        verbose_name = 'Размер'
+        verbose_name_plural = 'Размеры'
 
     def __str__(self):
-        return f'{self.value}'
+        return f'{self.name}'
 
+
+class ProductSize(models.Model):
+    """Связующая модель для кол-ва товаров по размерам"""
+    product = models.ForeignKey(
+        Product,
+        related_name='product_sizes',
+        on_delete=models.CASCADE,
+        verbose_name='Товар'
+    )
+    size = models.ForeignKey(
+        Size,
+        related_name='size_products',
+        on_delete=models.CASCADE,
+        verbose_name="Размер"
+    )
+    quantity = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Колличество'
+    )
+
+    class Meta:
+        verbose_name = 'Размер товара'
+        verbose_name_plural = 'Размеры товаров'
+        unique_together = ('product', 'size')
+
+    def __str__(self):
+        return f"{self.size.name}"
 
 class Favorite(models.Model):
     """Модель для избранных товаров"""
@@ -113,14 +168,40 @@ class CartItem(models.Model):
         on_delete = models.CASCADE,
         related_name = 'cart_items'
     )
+
+    size = models.ForeignKey(
+        Size,
+        on_delete = models.CASCADE,
+        verbose_name="Размер",
+        null=True,
+        blank=True
+    )
+
     quantity = models.PositiveIntegerField(default=1)
 
+    class Meta:
+        unique_together = ('cart', 'product', 'size')
+
     def __str__(self):
-        return f"{self.quantity} x {self.product.name}"
+        size_info = f" ({self.size.name})" if self.size else ""
+        return f"{self.quantity} x {self.product.name}{size_info}"
 
     @property
     def total_price(self):
         return self.quantity * self.product.price
+
+    def is_available(self):
+        """Проверяет доступность выбранного размера и количества"""
+        if self.size:
+            try:
+                product_size = ProductSize.objects.get(
+                    product=self.product,
+                    size=self.size
+                )
+                return product_size.quantity >= self.quantity
+            except ProductSize.DoesNotExist:
+                return False
+        return True
 
 
 class Order(models.Model):
@@ -147,6 +228,8 @@ class Order(models.Model):
     comment = models.TextField(blank=True)
 
     class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'
         ordering = ['-created_at']
 
     def __str__(self):
@@ -164,6 +247,15 @@ class OrderItem(models.Model):
         Product,
         on_delete = models.PROTECT
     )
+
+    size = models.ForeignKey(
+        Size,
+        on_delete=models.CASCADE,
+        verbose_name="Размер",
+        null=True,
+        blank=True
+    )
+
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
 

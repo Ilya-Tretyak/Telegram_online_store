@@ -2,24 +2,112 @@
 {% load static %}
 
 {% block stylesheet %}
-	<link rel="stylesheet" href="{% static 'shop/css/main.css' %}">
-	<link rel="stylesheet" href="{% static 'shop/css/favorite/list.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/css/product/catalog.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/css/favorite/list.css' %}">
 {% endblock %}
 
 {% block content %}
-	<h2>Избранное</h2>
-    <ul>
-      {% for item in items %}
-        <li>
-          <a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a>
-          — {{ item.product.price }} ₽
-          <form method="post" action="{% url 'remove_from_favorites' item.product.id %}">
-            {% csrf_token %}
-            <button type="submit">Удалить</button>
-          </form>
-        </li>
-      {% empty %}
-        <li>Нет избранных товаров.</li>
-      {% endfor %}
-    </ul>
+    <div class="favorites-header">
+        <h2>Избранное</h2>
+        <p>Ваши любимые товары</p>
+    </div>
+
+    <div class="container products-container">
+        {% if items %}
+            <div class="products-grid">
+                {% for item in items %}
+                <div class="product-card" id="product-{{ item.product.id }}">
+                    <div class="img-card">
+                        <a href="{% url 'product_detail' item.product.id item.product.slug %}">
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy">
+                        </a>
+                        <button class="favorite-btn"
+                                data-product-id="{{ item.product.id }}"
+                                data-is-favorite="true"
+                                aria-label="Удалить из избранного">
+                            <img src="{% static 'img-icon/favorite-icon-filled.svg' %}"
+                                 alt=""
+                                 class="heart-icon">
+                        </button>
+                    </div>
+                    <div class="info-card">
+                        <a class="product-title" href="{% url 'product_detail' item.product.id item.product.slug %}">
+                            <b>{{ item.product.name }}</b>
+                        </a>
+                        <p class="product-price">{{ item.product.price }} ₽</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-favorites">
+                <img src="{% static 'img-icon/heart-broken.svg' %}" alt="heart-broken">
+                <p>Вы пока не добавили ни одного товара в избранное</p>
+                <a href="{% url 'product_list' %}" class="btn-shop-now">Перейти к покупкам</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const favoriteButtons = document.querySelectorAll('.favorite-btn');
+
+        favoriteButtons.forEach(button => {
+            button.addEventListener('click', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const productId = this.dataset.productId;
+                const productCard = document.getElementById(`product-${productId}`);
+                const url = `/favorites/remove/${productId}/`;
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin'
+                    });
+
+                    if (!response.ok) throw new Error('Ошибка сервера');
+
+                    const data = await response.json();
+
+                    if (!data.is_favorite && productCard) {
+                        // Анимация удаления
+                        productCard.style.transform = 'scale(0.9)';
+                        productCard.style.opacity = '0';
+
+                        setTimeout(() => {
+                            productCard.remove();
+
+                            // Проверяем, остались ли товары
+                            if (!document.querySelector('.product-card')) {
+                                document.querySelector('.products-grid').innerHTML = `
+                                    <div class="empty-favorites">
+                                        <img src="{% static 'img-icon/heart-broken.svg' %}" alt="Нет избранных товаров">
+                                        <p>Вы пока не добавили ни одного товара в избранное</p>
+                                        <a href="{% url 'product_list' %}" class="btn-shop-now">Перейти к покупкам</a>
+                                    </div>
+                                `;
+                            }
+                        }, 300);
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    if (error.message.includes('403')) {
+                        window.location.href = '/login/?next=' + window.location.pathname;
+                    } else {
+                        alert('Произошла ошибка. Пожалуйста, попробуйте позже.');
+                    }
+                }
+            });
+        });
+    });
+    </script>
 {% endblock %}

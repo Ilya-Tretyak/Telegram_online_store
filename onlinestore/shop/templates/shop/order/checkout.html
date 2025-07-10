@@ -1,17 +1,40 @@
 {% extends "shop/base.html" %}
+{% load static %}
+
+{% block stylesheet %}
+	<link rel="stylesheet" href="{% static 'shop/css/order/checkout.css' %}">
+{% endblock %}
 
 {% block content %}
-<h2>Оформление заказа</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <h3>Ваш заказ:</h3>
-    <ul>
-        {% for item in cart.items.all %}
-        <li>{{ item.product.name }} x{{ item.quantity }}</li>
-        {% endfor %}
-    </ul>
-    <p><strong>Итого: {{ cart.total_price }} руб.</strong></p>
-    <button type="submit">Подтвердить заказ</button>
-</form>
+    <div class="checkout-container">
+        <h3>Ваш заказ:</h3>
+
+        <div class="title-table">
+            <p>Товары</p>
+            <p> </p>
+            <p>Цена</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="order-info">
+                    {% for item in cart.items.all %}
+                        <p>{{ item.product.name }} <b>({{ item.size.name }})</b></p>
+                        <p>x{{ item.quantity }} </p>
+                        <p>{{ item.total_price }}</p>
+                    {% endfor %}
+            </div>
+
+            <div class="total-sum">
+                <div class="total-left">
+                    <p>Итого:</p>
+                    <span>{{ cart.total_price }} ₽</span>
+                </div>
+                <button type="submit">Подтвердить заказ</button>
+            </div>
+
+        </form>
+
+    </div>
 {% endblock %}

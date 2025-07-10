@@ -2,34 +2,84 @@
 {% load static %}
 
 {% block stylesheet %}
-	<link rel="stylesheet" href="{% static 'shop/css/main.css' %}">
-	<link rel="stylesheet" href="{% static 'shop/css/product/catalog.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'shop/css/product/catalog.css' %}">
 {% endblock %}
 
 {% block content %}
-	<main class="site-main">
+    <main class="site-main">
         <div class="container products-container">
             {% for product in products %}
             <div class="product-card">
-
                 <div class="img-card">
                     <a href="{% url 'product_detail' product.id product.slug %}">
                         <img src="{{ product.image.url }}" alt="{{ product.name }}">
                     </a>
-                    <button class="favorite-btn">
-                        <img src="{% static 'img-icon/favorite-icon.svg' %}" alt="В избранное" class="heart-icon">
+                    <button class="favorite-btn"
+                            data-product-id="{{ product.id }}"
+                            data-is-favorite="{% if product.id in user_favorites %}true{% else %}false{% endif %}">
+                        <img src="{% if product.id in user_favorites %}{% static 'img-icon/favorite-icon-filled.svg' %}{% else %}{% static 'img-icon/favorite-icon.svg' %}{% endif %}"
+                             alt="Избранное"
+                             class="heart-icon">
                     </button>
                 </div>
-
                 <div class="info-card">
                     <a class="product-title" href="{% url 'product_detail' product.id product.slug %}">
                         <b>{{ product.name }}</b>
                     </a>
                     <p class="product-price">Цена: {{ product.price }} ₽</p>
                 </div>
-
             </div>
             {% endfor %}
         </div>
     </main>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.favorite-btn').forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const icon = this.querySelector('.heart-icon');
+            const productId = this.dataset.productId;
+            const isFavorite = this.dataset.isFavorite === 'true';
+            const url = isFavorite
+                ? `/favorites/remove/${productId}/`
+                : `/favorites/add/${productId}/`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!response.ok) throw new Error('Ошибка сервера');
+
+                const data = await response.json();
+
+                // Меняем изображение
+                if (data.is_favorite) {
+                    icon.src = '{% static "img-icon/favorite-icon-filled.svg" %}';
+                } else {
+                    icon.src = '{% static "img-icon/favorite-icon.svg" %}';
+                }
+
+                // Обновляем состояние
+                this.dataset.isFavorite = data.is_favorite;
+
+            } catch (error) {
+                console.error('Error:', error);
+                if (error.message.includes('403')) {
+                    window.location.href = '/login/?next=' + window.location.pathname;
+                }
+            }
+        });
+    });
+});
+</script>
+
 {% endblock %}

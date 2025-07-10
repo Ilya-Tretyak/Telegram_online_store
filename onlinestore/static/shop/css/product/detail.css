@@ -1,11 +1,10 @@
-/* Стили для details */
 .detail-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 40px;
-    max-width: 1600px;
+    max-width: 1400px;
     margin: 40px auto;
-    padding: 0 30px;
+    padding: 0 40px;
     align-items: center;
 }
 
@@ -24,7 +23,8 @@
 .info-detail {
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 20px;
+    padding-left: 20px;
 }
 
 .name-detail {
@@ -41,10 +41,16 @@
     margin: 0;
 }
 
+.size-quantity-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
 .sizes-detail {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
 }
 
 .sizes-detail .label {
@@ -55,10 +61,18 @@
 
 .size-boxes {
     display: flex;
-    gap: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
-.size-box {
+.size-option {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.size-option + .size-box {
     padding: 10px 20px;
     border: 2px solid #000;
     border-radius: 8px;
@@ -67,26 +81,35 @@
     transition: all 0.3s ease;
 }
 
-.size-box:hover {
+.size-option:checked + .size-box {
     background-color: #000;
     color: #fff;
 }
 
-/* Количество */
-.product-quantity {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
+.size-out-of-stock {
+    opacity: 0.5;
+    text-decoration: line-through;
+    cursor: not-allowed;
+    border-color: #ccc !important;
 }
 
-.product-quantity .label {
+.size-option:disabled + .size-box {
+    pointer-events: none;
+}
+
+.product-quantity-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.product-quantity-detail .label {
     font-size: 13px;
     color: #8D8D8D;
     margin: 0;
 }
 
-.quantity-boxes {
+.quantity-controls {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -94,14 +117,13 @@
 
 .quantity-btn {
     color: #000;
-    width: 50px;
-    height: 25px;
+    width: 60px;
+    height: 32px;
     font-weight: bold;
     border: 2px solid #000;
     background: none;
     cursor: pointer;
     font-size: 18px;
-    line-height: 1;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -110,64 +132,98 @@
 
 .quantity-count {
     font-size: 17px;
-    min-width: 20px;
+    min-width: 60px;
     text-align: center;
+}
+
+/* Кнопки "Добавить в корзину" и "Избранное" */
+.action-buttons-row {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 .buy-button-detail {
     background-color: #000;
     color: #fff;
-    padding: 12px;
+    padding: 12px 24px;
     border: none;
     border-radius: 8px;
     font-size: 14px;
     cursor: pointer;
-    margin-top: auto;
-    margin-left: 50px;
-    width: 300px;
-    max-width: 100%;
+    white-space: nowrap;
 }
-
 
 .favorite-button-detail {
     background: none;
     border: none;
     padding: 0;
     cursor: pointer;
+    display: flex;
+    align-items: center;
 }
 
-/* Для мобильной адаптивности */
 @media (max-width: 768px) {
     .detail-container {
         grid-template-columns: 1fr;
-        padding: 0 15px;
-        gap: 20px;
-    }
-
-    .img-detail img {
-        width: 100%;
-        height: auto;
-    }
-
-    .name-detail {
-        font-size: 20px;
-        font-family: 'FM Bolyar Sans Pro', sans-serif;
-    }
-
-    .price-detail {
-        font-size: 24px;
+        padding: 0 20px;
+        gap: 30px;
     }
 
     .info-detail {
+        padding-left: 0;
+    }
+
+    .name-detail {
+        font-size: 30px;
+    }
+
+    .price-detail {
+        display: flex;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .sizes-detail {
         gap: 20px;
     }
 
+    .size-boxes {
+        justify-content: center;
+    }
+
+    .quantity-controls {
+        justify-content: center;
+    }
+
+    .action-buttons-row {
+        position: relative;
+        height: 50px; /* или auto, если кнопки разные по высоте */
+        margin-top: 16px;
+    }
+
     .buy-button-detail {
-        margin-left: 20px;
-        width: 100%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 12px 24px;
+        font-size: 17px;
+        font-style: inherit;
+        border-radius: 8px;
+        background-color: #000;
+        color: #fff;
+        border: none;
+        white-space: nowrap;
+        z-index: 1;
     }
 
     .favorite-button-detail {
-        margin-left: 30px;
+        position: absolute;
+        left: 86%;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
     }
 }

@@ -42,6 +42,11 @@
     font-weight: 500;
 }
 
+.top-row a {
+    color: inherit;
+    text-decoration: none;
+}
+
 .bottom-row {
     font-weight: bold;
     color: #333;
@@ -95,7 +100,7 @@
 }
 
 .cart-summary-fixed .summary-left span {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: bold;
     color: #000;
 }
@@ -106,7 +111,7 @@
     padding: 12px 30px;
     border-radius: 6px;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 11px;
     font-weight: 600;
     transition: background-color 0.3s ease;
 }
