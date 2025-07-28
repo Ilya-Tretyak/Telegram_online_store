@@ -9,6 +9,7 @@ from django.shortcuts import (
 from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.views.generic import ListView, DetailView, DeleteView
+
 from rest_framework.reverse import reverse_lazy
 
 from .models import (
@@ -21,7 +22,7 @@ from .models import (
     Cart,
     CartItem,
     Order,
-    OrderItem
+    OrderItem,
 )
 from .forms import OrderForm
 
@@ -241,3 +242,7 @@ def order_list(request):
     """Получение всех заказов пользователя"""
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'shop/order/list.html', {'orders': orders})
+
+
+def miniapp_view(request):
+    return render(request, "shop/miniapp.html")

@@ -3,6 +3,7 @@ from . import views
 
 
 urlpatterns = [
+    path('miniapp/', views.miniapp_view, name='miniapp'),
 # urls для order
     path('order/checkout/', views.checkout, name='checkout'),
     path('order/<int:order_id>/', views.order_detail, name='order_detail'),

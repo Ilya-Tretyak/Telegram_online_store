@@ -2,7 +2,18 @@
     box-sizing: border-box;
 }
 
+:root {
+  --tg-theme-bg-color: initial;
+  --tg-theme-text-color: initial;
+  --tg-theme-link-color: initial;
+  --tg-theme-button-color: initial;
+  --tg-theme-secondary-bg-color: initial;
+}
+
+
 body {
     margin: 0;
     font-family: 'FM Bolyar Sans Pro', sans-serif;
+    background: white !important;
+    color: black !important;
 }

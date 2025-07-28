@@ -56,7 +56,7 @@ class Product(models.Model):
     )
     available = models.BooleanField(default=True, verbose_name='Доступен')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
-    updated = models.DateTimeField(auto_now=True, verbose_name='Обнавлен')
+    updated = models.DateTimeField(auto_now=True, verbose_name='Обновлен')
 
     class Meta:
         verbose_name = 'Товар'
@@ -261,3 +261,22 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
+
+
+
+
+class TelegramUser(models.Model):
+    telegram_id = models.BigIntegerField(unique=True)
+    username = models.CharField(max_length=150, blank=True, null=True)
+    first_name = models.CharField(max_length=150, blank=True, null=True)
+    last_name = models.CharField(max_length=150, blank=True, null=True)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='telegram_user',
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return self.username or str(self.telegram_id)

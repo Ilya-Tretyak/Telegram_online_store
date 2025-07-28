@@ -3,6 +3,7 @@
 
 {% block stylesheet %}
 	<link rel="stylesheet" href="{% static 'shop/css/order/checkout.css' %}">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -31,10 +32,48 @@
                     <p>Итого:</p>
                     <span>{{ cart.total_price }} ₽</span>
                 </div>
-                <button type="submit">Подтвердить заказ</button>
+                <button id="confirm-btn" type="submit">Подтвердить заказ</button>
             </div>
 
         </form>
 
     </div>
+
+    <script>
+      document.querySelector("form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const comment = document.getElementById("comment-field")?.value || "";
+
+        try {
+          const res = await fetch("/api/checkout/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ comment }),
+            credentials: "include"
+          });
+
+          const data = await res.json();
+
+          if (data.ok) {
+            const orderId = data.order_id;
+
+            // Перейти к боту с параметром оплаты
+            Telegram.WebApp.openTelegramLink(`https://t.me/Test99OnlineStoreBot?start=pay_${orderId}`);
+
+            // Попробовать закрыть MiniApp (не гарантируется, но на Android часто срабатывает)
+            setTimeout(() => Telegram.WebApp.close(), 300);
+          } else {
+            alert("Ошибка оформления заказа");
+          }
+        } catch (error) {
+          console.error("Ошибка:", error);
+          alert("Не удалось оформить заказ");
+        }
+      });
+    </script>
+
+
+
+
 {% endblock %}
